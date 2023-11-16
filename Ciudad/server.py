@@ -2,7 +2,7 @@
 Configure visualization elements and instantiate a server
 """
 
-from .model import Ciudad, CalleSur, CalleEste, CalleNorte, CalleOeste, Semaforo, Edificio, Rotonda, Estacionamiento  # noqa
+from .model import Ciudad, Coche, CalleSur, CalleEste, CalleNorte, CalleOeste, Semaforo, Edificio, Rotonda, Estacionamiento  # noqa
 
 import mesa
 
@@ -22,10 +22,10 @@ def vista_general(agent):
 
     if (isinstance(agent, CalleSur) or isinstance(agent, CalleEste) or isinstance(agent, CalleOeste)
             or isinstance(agent, CalleNorte)):
-        portrayal["Color"] = "Grey"
+        portrayal["Color"] = "LightGrey"
         portrayal["w"] = 1
         portrayal["h"] = 1
-    #
+
     elif isinstance(agent, Semaforo):
         if agent.state == "Red":
             portrayal["Color"] = "Red"
@@ -37,7 +37,7 @@ def vista_general(agent):
             portrayal["h"] = 1
 
     elif isinstance(agent, Edificio):
-        portrayal["Color"] = "Blue"
+        portrayal["Color"] = "SkyBlue"
         portrayal["w"] = 1
         portrayal["h"] = 1
 
@@ -56,10 +56,12 @@ def vista_general(agent):
         portrayal["w"] = 0.3
         portrayal["h"] = 0.3
 
-    # elif isinstance(agent, coche):
-    #     portrayal["Color"] = "Blue"
-    #     portrayal["Layer"] = 2
-    #
+    elif isinstance(agent, Coche):
+        portrayal["Color"] = "Blue"
+        portrayal["Shape"] = "circle"
+        portrayal["r"] = "0.5"
+        portrayal["Layer"] = 2
+
     # elif isinstance(agent, peaton):
     #     portrayal["Color"] = "Green"
     #     portrayal["Layer"] = 2
@@ -73,7 +75,7 @@ canvas_element = mesa.visualization.CanvasGrid(
     vista_general, 24, 24, 700, 700
 )
 
-model_kwargs = {"num_agents": 10, "width": 24, "height": 24}
+model_kwargs = {"num_agents": 17, "width": 24, "height": 24}
 
 server = mesa.visualization.ModularServer(
     Ciudad,
