@@ -62,18 +62,13 @@ def vista_general(agent):
         portrayal["r"] = "0.5"
         portrayal["Layer"] = 2
 
-    # elif isinstance(agent, peaton):
-    #     portrayal["Color"] = "Green"
-    #     portrayal["Layer"] = 2
-    #     portrayal["Shape"] = "circle"
-    #     portrayal["r"] = 0.3
-
     return portrayal
 
 
 canvas_element = mesa.visualization.CanvasGrid(
     vista_general, 24, 24, 700, 700
 )
+
 
 model_kwargs = {"num_agents": 17, "width": 24, "height": 24}
 

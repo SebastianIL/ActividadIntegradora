@@ -224,6 +224,7 @@ class Coche(mesa.Agent):
         self.origen = None
         self.destino = None
         self.terminado = False
+        self.contado = False
         self.ruta = []
         super().__init__(unique_id, model)
 
@@ -284,8 +285,7 @@ class Coche(mesa.Agent):
             if self.ruta:
                 calleSig = self.model.grid.get_cell_list_contents((self.ruta[0]))
                 if len(calleSig) == 2:
-                    print(calleSig[1].__str__())
-                    if isinstance(calleSig[1], Coche) or calleSig[1].__str__() == "Semaforo Rojo":
+                    if (isinstance(calleSig[1], Coche) or calleSig[1].__str__() == "Semaforo Rojo") and len(self.ruta) != 2:
                         pass
                     else:
                         if self.ruta[0] == self.destino and not self.terminado:
@@ -293,7 +293,6 @@ class Coche(mesa.Agent):
                             self.prev_pos = self.pos
                             self.model.grid.move_agent(self, self.ruta[0])
                             self.ruta.remove(self.ruta[0])
-                            print(self.terminado)
                         elif not self.terminado:
                             self.prev_pos = self.pos
                             self.model.grid.move_agent(self, self.ruta[0])
@@ -308,7 +307,6 @@ class Coche(mesa.Agent):
                             self.prev_pos = self.pos
                             self.model.grid.move_agent(self, self.ruta[0])
                             self.ruta.remove(self.ruta[0])
-                            print(self.terminado)
                         elif not self.terminado:
                             self.prev_pos = self.pos
                             self.model.grid.move_agent(self, self.ruta[0])
@@ -319,7 +317,6 @@ class Coche(mesa.Agent):
                     self.prev_pos = self.pos
                     self.model.grid.move_agent(self, self.ruta[0])
                     self.ruta.remove(self.ruta[0])
-                    print(self.terminado)
                 elif not self.terminado:
                     self.prev_pos = self.pos
                     self.model.grid.move_agent(self, self.ruta[0])
@@ -335,6 +332,7 @@ class Ciudad(mesa.Model):
         self.current_step = 0
         self.lista_coches = []
         self.terminados = 0
+        print(num_agents)
 
         estacionamiento1 = Estacionamiento(1, self)
         self.schedule.add(estacionamiento1)
@@ -683,19 +681,33 @@ class Ciudad(mesa.Model):
             coche.origen = (x, y)
             self.schedule.add(coche)
             self.grid.place_agent(coche, (x, y))
-            x, y = random.choice(destinos)
-            coche.destino = (x, y)
+            v, w = random.choice(destinos)
+            coche.destino = (v, w)
             while coche.destino == coche.origen:
-                x, y = random.choice(destinos)
-                coche.destino = (x, y)
-            destinos.remove((x, y))
+                del coche.destino
+                v, w = random.choice(destinos)
+                coche.destino = (v, w)
+
+            destinos.remove((v, w))
             self.lista_coches.append(coche)
 
         # example data collector
-        self.datacollector = mesa.datacollection.DataCollector()
+        self.datacollector = mesa.datacollection.DataCollector(
+            # model_reporters={
+            #     "Coches": self.lista_coches,
+            #     "Pasos restantes": self.lista_coches
+            # }
+        )
 
         self.running = True
         self.datacollector.collect(self)
+
+    def pasos_Dijkstra(self):
+        coches = self.lista_coches
+        longitudes = []
+        for coche in coches:
+            longitudes.append(len(coche.ruta))
+        return longitudes
 
     def estacionamiento_position(self):
         estacionamiento_cells = []
@@ -724,6 +736,7 @@ class Ciudad(mesa.Model):
                         elif len(cell_list) == 3:
                             if cell_list[2].unique_id == 423 + i:
                                 coches.append((x, y))
+                del cell_list
         return coches
 
     def estado_semaforo(self):
@@ -749,9 +762,8 @@ class Ciudad(mesa.Model):
         self.current_step += 1
 
         for coche in self.lista_coches:
-            if coche.terminado:
+            if coche.terminado and not coche.contado:
                 self.terminados += 1
-                self.lista_coches.remove(coche)
+                coche.contado = True
         if self.terminados == self.num_agents:
             self.running = False
-        print(self.terminados)
