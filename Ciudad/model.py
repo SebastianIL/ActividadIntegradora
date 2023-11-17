@@ -226,6 +226,8 @@ class Coche(mesa.Agent):
         self.terminado = False
         self.contado = False
         self.ruta = []
+        self.ruta_completa = []
+        self.pasos_finales = 0
         super().__init__(unique_id, model)
 
     def __str__(self):
@@ -278,6 +280,7 @@ class Coche(mesa.Agent):
             self.ruta = self.generar_ruta()
             self.model.grid.move_agent(self, self.ruta[0])
             self.ruta.remove(self.ruta[0])
+            self.ruta_completa = self.ruta
             self.model.grid.move_agent(self, self.ruta[0])
             self.ruta.remove(self.ruta[0])
         else:
@@ -289,6 +292,7 @@ class Coche(mesa.Agent):
                         pass
                     else:
                         if self.ruta[0] == self.destino and not self.terminado:
+                            self.pasos_finales = self.model.current_step
                             self.terminado = True
                             self.prev_pos = self.pos
                             self.model.grid.move_agent(self, self.ruta[0])
@@ -327,11 +331,14 @@ class Ciudad(mesa.Model):
     def __init__(self, num_agents, width, height):
         super().__init__()
         self.num_agents = num_agents
+        self.promedios = None
+        self.promediosReales = None
         self.schedule = mesa.time.RandomActivation(self)
         self.grid = mesa.space.MultiGrid(width=width, height=height, torus=False)
         self.current_step = 0
         self.lista_coches = []
         self.terminados = 0
+
         print(num_agents)
 
         estacionamiento1 = Estacionamiento(1, self)
@@ -698,7 +705,6 @@ class Ciudad(mesa.Model):
             #     "Pasos restantes": self.lista_coches
             # }
         )
-
         self.running = True
         self.datacollector.collect(self)
 
@@ -756,7 +762,24 @@ class Ciudad(mesa.Model):
 
         return estados
 
+    def longitud_promedio(self):
+        lista = []
+        for coche in self.lista_coches:
+            lista.append(len(coche.ruta_completa))
+        promedio = (sum(lista)/len(lista))
+        print(promedio)
+        return promedio
+
+    def pasos_finales(self):
+        elementos = []
+        for coche in self.lista_coches:
+            elementos.append(coche.pasos_finales)
+        promedio = (sum(elementos)/len(elementos))
+        return promedio
+
     def step(self):
+        if self.current_step == 1:
+            self.promedios = self.longitud_promedio()
         self.datacollector.collect(self)
         self.schedule.step()
         self.current_step += 1
@@ -766,4 +789,6 @@ class Ciudad(mesa.Model):
                 self.terminados += 1
                 coche.contado = True
         if self.terminados == self.num_agents:
+            self.promediosReales = self.pasos_finales()
+            print(self.promediosReales)
             self.running = False
