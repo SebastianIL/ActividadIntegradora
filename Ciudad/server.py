@@ -35,6 +35,11 @@ def vista_general(agent):
             portrayal["Color"] = "Green"
             portrayal["w"] = 1
             portrayal["h"] = 1
+        if agent.state == "Yellow":
+            portrayal["Color"] = "Yellow"
+            portrayal["w"] = 1
+            portrayal["h"] = 1  
+     
 
     elif isinstance(agent, Edificio):
         portrayal["Color"] = "SkyBlue"

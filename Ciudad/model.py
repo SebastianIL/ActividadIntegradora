@@ -192,29 +192,155 @@ class Rotonda(mesa.Agent):
         pass
 
 
+
+
 class Semaforo(mesa.Agent):
     def __init__(self, unique_id, model):
         self.unique_id = unique_id
-        self.state = ""
+        self.state = "Yellow"
+        self.pasos = 1
+        self.set = None
+        self.carro = False
         super().__init__(unique_id, model)
-        if self.unique_id == 23:
-            self.state = "Red"
-        elif self.unique_id == 24:
-            self.state = "Green"
+       
 
     def __str__(self):
         if self.state == "Red":
             return "Semaforo Rojo"
         if self.state == "Green":
             return "Semaforo Verde"
+        if self.state == "Yellow":
+            return "Semaforo Amarillo"
+    
+    def checkCarsNearby(self):
+        x, y = self.pos
+
+        celda = self.model.grid.get_cell_list_contents((x,y))
+
+        if isinstance(celda[0], CalleNorte):
+            vecino_norte =  [(x, y - 1),(x, y - 2), (x, y - 3)]
+            vecino_semaforo = [(x + 1,y), (x - 1, y)]
+
+            for vecino in vecino_norte:
+                x,y = vecino
+                if x >= 0 and y >= 0 and y < 24 and x < 24:
+                    celda_vecina = self.model.grid.get_cell_list_contents(vecino)
+                    if len(celda_vecina) >= 2:
+                        if isinstance(celda_vecina[1],Coche) and (self.state == "Yellow"):
+                            self.state = "Green"
+                            self.carro = True
+                            print(celda_vecina[1])
+                if self.carro == False:
+                    self.state == "Yellow"
+
+            for vecino in vecino_semaforo:
+                x,y = vecino
+                if x >= 0 and y >= 0 and y < 24 and x < 24:
+                    celda_vecina = self.model.grid.get_cell_list_contents(vecino)
+                    if len(celda_vecina) >= 2:
+                        if isinstance(celda_vecina[1], Semaforo) and self.state == "Yellow":
+                            if celda_vecina[1].carro == True:
+                                self.state = celda_vecina[1].state
+                                self.pasos += 1
+                                self.carro = True
+
+
+        elif isinstance(celda[0], CalleSur):
+            vecino_sur =  [(x, y + 1),(x, y + 2), (x, y + 3)]
+            vecino_semaforo = [(x - 1,y), (x + 1, y)]
+
+            for vecino in vecino_sur:
+                x,y = vecino
+                if x >= 0 and y >= 0 and y < 24 and x < 24:
+                    celda_vecina = self.model.grid.get_cell_list_contents(vecino)
+                    if len(celda_vecina) >= 2:
+                        if isinstance(celda_vecina[1],Coche) and (self.state == "Yellow"):
+                            self.state = "Green"
+                            self.carro = True
+                            print(celda_vecina[1])
+                if self.carro == False:
+                    self.state == "Yellow"
+
+            for vecino in vecino_semaforo:
+                x,y = vecino
+                if x >= 0 and y >= 0 and y < 24 and x < 24:
+                    celda_vecina = self.model.grid.get_cell_list_contents(vecino)
+                    if len(celda_vecina) >= 2:
+                        if isinstance(celda_vecina[1], Semaforo) and self.state == "Yellow":
+                            if celda_vecina[1].carro == True:
+                                self.state = celda_vecina[1].state
+                                self.pasos += 1
+                                self.carro = True
+
+        
+        elif isinstance(celda[0], CalleEste):
+            vecino_este =  [(x - 1, y),(x - 2, y), (x - 3, y)]
+            vecino_semaforo = [(x,y + 1), (x, y - 1)]
+
+            for vecino in vecino_este:
+                x,y = vecino
+                if x >= 0 and y >= 0 and y < 24 and x < 24:
+                    celda_vecina = self.model.grid.get_cell_list_contents(vecino)
+                    if len(celda_vecina) >= 2:
+                        if isinstance(celda_vecina[1],Coche) and (self.state == "Yellow"):
+                            self.state = "Green"
+                            self.carro = True
+                            print(celda_vecina[1])
+                if self.carro == False:
+                    self.state == "Yellow"
+
+            for vecino in vecino_semaforo:
+                x,y = vecino
+                if x >= 0 and y >= 0 and y < 24 and x < 24:
+                    celda_vecina = self.model.grid.get_cell_list_contents(vecino)
+                    if len(celda_vecina) >= 2:
+                        if isinstance(celda_vecina[1], Semaforo) and self.state == "Yellow":
+                            if celda_vecina[1].carro == True:
+                                self.state = celda_vecina[1].state
+                                self.pasos += 1
+                                self.carro = True
+                
+
+        elif isinstance(celda[0], CalleOeste):
+            vecino_oeste =  [(x + 1, y),(x + 2, y), (x + 3, y)]
+            vecino_semaforo = [(x,y +1), (x, y - 1)]
+       
+            for vecino in vecino_oeste:
+                x,y = vecino
+                if x >= 0 and y >= 0 and y < 24 and x < 24:
+                    celda_vecina = self.model.grid.get_cell_list_contents(vecino)
+                    if len(celda_vecina) >= 2:
+                        if isinstance(celda_vecina[1],Coche) and (self.state == "Yellow"):
+                            self.state = "Green"
+                            self.carro = True
+                            print(celda_vecina[1])
+            
+            for vecino in vecino_semaforo:
+                x,y = vecino
+                if x >= 0 and y >= 0 and y < 24 and x < 24:
+                    celda_vecina = self.model.grid.get_cell_list_contents(vecino)
+                    if len(celda_vecina) >= 2:
+                        if isinstance(celda_vecina[1], Semaforo) and self.state == "Yellow":
+                            if celda_vecina[1].carro == True:
+                                self.state = celda_vecina[1].state
+                                self.carro = True
+                                self.pasos += 1
+
+
 
     def step(self):
         current_step = self.model.current_step
-        if current_step % 5 == 0 and current_step != 0:
-            if self.state == "Red":
-                self.state = "Green"
-            elif self.state == "Green":
-                self.state = "Red"
+        self.checkCarsNearby()
+        if self.state == "Yellow":
+            self.pasos = 1
+        elif self.state  == "Green" or self.state == "Red":
+            self.pasos += 1
+            if self.pasos % 5 == 0:
+                if self.state == "Red":
+                    self.state = "Green"
+                elif self.state == "Green":
+                    self.state = "Red"
+                
 
 
 class Coche(mesa.Agent):
@@ -374,10 +500,7 @@ class Ciudad(mesa.Model):
         edificio = Edificio(22, self)
         self.schedule.add(edificio)
 
-        semaforo1 = Semaforo(23, self)
-        semaforo2 = Semaforo(24, self)
-        self.schedule.add(semaforo1)
-        self.schedule.add(semaforo2)
+       
 
         rotonda = Rotonda(25, self)
         self.schedule.add(rotonda)
@@ -393,9 +516,14 @@ class Ciudad(mesa.Model):
             calle_sur = CalleSur(i + 49, self)
             self.schedule.add(calle_sur)
             self.grid.place_agent(calle_sur, (1, i + 2))
-
-        self.grid.place_agent(semaforo1, (0, 12))
-        self.grid.place_agent(semaforo1, (1, 12))
+        semaforo = Semaforo(501,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 1
+        self.grid.place_agent(semaforo, (0, 12))
+        semaforo = Semaforo(502,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 1
+        self.grid.place_agent(semaforo, (1, 12))
 
         # ============== Orilla Sur =======================
 
@@ -409,8 +537,14 @@ class Ciudad(mesa.Model):
             self.schedule.add(calle_este)
             self.grid.place_agent(calle_este, (i + 1, 1))
 
-        self.grid.place_agent(semaforo2, (11, 0))
-        self.grid.place_agent(semaforo2, (11, 1))
+        semaforo = Semaforo(503,self)
+        self.schedule.add(semaforo)
+        self.grid.place_agent(semaforo, (11, 0))
+        semaforo.set = 2
+        semaforo = Semaforo(504,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 2
+        self.grid.place_agent(semaforo, (11, 1))
 
         # ==========Orilla Este==============
 
@@ -423,9 +557,14 @@ class Ciudad(mesa.Model):
             calle_norte = CalleNorte(137 + i, self)
             self.schedule.add(calle_norte)
             self.grid.place_agent(calle_norte, (22, i + 1))
-
-        self.grid.place_agent(semaforo1, (22, 7))
-        self.grid.place_agent(semaforo1, (23, 7))
+        semaforo = Semaforo(505,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 3
+        self.grid.place_agent(semaforo, (22, 7))
+        semaforo = Semaforo(506,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 3
+        self.grid.place_agent(semaforo, (23, 7))
 
         # ==========Orilla Norte==============
 
@@ -438,9 +577,14 @@ class Ciudad(mesa.Model):
             calle_oeste = CalleOeste(182 + i, self)
             self.schedule.add(calle_oeste)
             self.grid.place_agent(calle_oeste, (i + 2, 22))
-
-        self.grid.place_agent(semaforo2, (16, 22))
-        self.grid.place_agent(semaforo2, (16, 23))
+        semaforo = Semaforo(507,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 4
+        self.grid.place_agent(semaforo, (16, 22))
+        semaforo = Semaforo(508,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 4
+        self.grid.place_agent(semaforo, (16, 23))
 
         # ========== Edificios =============
         for i in range(6):
@@ -496,8 +640,14 @@ class Ciudad(mesa.Model):
                 self.schedule.add(calle_norte)
                 self.grid.place_agent(calle_norte, (j + 5, i + 12))
                 it += 1
-        self.grid.place_agent(semaforo1, (5, 15))
-        self.grid.place_agent(semaforo1, (6, 15))
+        semaforo = Semaforo(509,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 5
+        self.grid.place_agent(semaforo, (5, 15))
+        semaforo = Semaforo(510,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 5
+        self.grid.place_agent(semaforo, (6, 15))
 
         it = 0
         for i in range(6):
@@ -506,8 +656,14 @@ class Ciudad(mesa.Model):
                 self.schedule.add(calle_norte)
                 self.grid.place_agent(calle_norte, (j + 14, i + 2))
                 it += 1
-        self.grid.place_agent(semaforo1, (14, 3))
-        self.grid.place_agent(semaforo1, (15, 3))
+        semaforo = Semaforo(511,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 6
+        self.grid.place_agent(semaforo, (14, 3))
+        semaforo = Semaforo(512,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 6
+        self.grid.place_agent(semaforo, (15, 3))
 
         it = 0
         for i in range(10):
@@ -516,8 +672,14 @@ class Ciudad(mesa.Model):
                 self.schedule.add(calle_norte)
                 self.grid.place_agent(calle_norte, (j + 14, i + 12))
                 it += 1
-        self.grid.place_agent(semaforo1, (14, 21))
-        self.grid.place_agent(semaforo1, (15, 21))
+        semaforo = Semaforo(513,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 7
+        self.grid.place_agent(semaforo, (14, 21))
+        semaforo = Semaforo(514,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 7
+        self.grid.place_agent(semaforo, (15, 21))
 
         it = 0
         for i in range(4):
@@ -543,8 +705,14 @@ class Ciudad(mesa.Model):
                 self.schedule.add(calle_sur)
                 self.grid.place_agent(calle_sur, (j + 12, i + 2))
                 it += 1
-        self.grid.place_agent(semaforo1, (12, 2))
-        self.grid.place_agent(semaforo1, (13, 2))
+        semaforo = Semaforo(515,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 8
+        self.grid.place_agent(semaforo, (12, 2))
+        semaforo = Semaforo(516,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 8
+        self.grid.place_agent(semaforo, (13, 2))
 
         it = 0
         for i in range(10):
@@ -570,8 +738,14 @@ class Ciudad(mesa.Model):
                 self.schedule.add(calle_oeste)
                 self.grid.place_agent(calle_oeste, (j + 2, i + 16))
                 it += 1
-        self.grid.place_agent(semaforo2, (7, 16))
-        self.grid.place_agent(semaforo2, (7, 17))
+        semaforo = Semaforo(517,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 9
+        self.grid.place_agent(semaforo, (7, 16))
+        semaforo = Semaforo(518,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 9
+        self.grid.place_agent(semaforo, (7, 17))
 
         it = 0
         for i in range(2):
@@ -580,8 +754,14 @@ class Ciudad(mesa.Model):
                 self.schedule.add(calle_oeste)
                 self.grid.place_agent(calle_oeste, (j + 2, i + 10))
                 it += 1
-        self.grid.place_agent(semaforo2, (2, 10))
-        self.grid.place_agent(semaforo2, (2, 11))
+        semaforo = Semaforo(519,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 10
+        self.grid.place_agent(semaforo, (2, 10))
+        semaforo = Semaforo(520,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 10
+        self.grid.place_agent(semaforo, (2, 11))
 
         it = 0
         for i in range(2):
@@ -598,8 +778,14 @@ class Ciudad(mesa.Model):
                 self.schedule.add(calle_oeste)
                 self.grid.place_agent(calle_oeste, (j + 16, i + 4))
                 it += 1
-        self.grid.place_agent(semaforo2, (16, 4))
-        self.grid.place_agent(semaforo2, (16, 5))
+        semaforo = Semaforo(521,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 11
+        self.grid.place_agent(semaforo, (16, 4))
+        semaforo = Semaforo(522,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 11
+        self.grid.place_agent(semaforo, (16, 5))
 
         # ================ Calles interiores Este =======================
         it = 0
@@ -617,8 +803,14 @@ class Ciudad(mesa.Model):
                 self.schedule.add(calle_este)
                 self.grid.place_agent(calle_este, (j + 16, i + 8))
                 it += 1
-        self.grid.place_agent(semaforo2, (21, 8))
-        self.grid.place_agent(semaforo2, (21, 9))
+        semaforo = Semaforo(523,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 12
+        self.grid.place_agent(semaforo, (21, 8))
+        semaforo = Semaforo(524,self)
+        self.schedule.add(semaforo)
+        semaforo.set = 12
+        self.grid.place_agent(semaforo, (21, 9))
 
         # ================ ROTONDA =====================
         it = 0
@@ -729,11 +921,15 @@ class Ciudad(mesa.Model):
     def estado_semaforo(self):
         semaforo1 = False
         semaforo2 = False
+        semaforo3 = False
         estados = []
         for x in range(self.grid.width):
             for y in range(self.grid.height):
                 cell_list = self.grid.get_cell_list_contents([(x, y)])
-                if len(cell_list) >= 2:
+                if len(cell_list) >= 3:
+                    if cell_list[1].unique_id == 500 and not semaforo3:
+                        estados.append(cell_list[1].__str__())
+                        semaforo3 = True
                     if cell_list[1].unique_id == 23 and not semaforo1:
                         estados.append(cell_list[1].__str__())
                         semaforo1 = True
