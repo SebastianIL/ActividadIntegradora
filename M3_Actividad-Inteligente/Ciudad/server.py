@@ -1,4 +1,4 @@
-from .model import Ciudad, CalleSur, Coche, CalleEste, CalleNorte, CalleOeste, Semaforo, Edificio, Estacionamiento, Banqueta  # noqa
+from .model import Ambulancia, Ciudad, Peaton, Hospital, CalleSur, Coche, CalleEste, CalleNorte, CalleOeste, Semaforo, Edificio, Estacionamiento, Banqueta  # noqa
 
 import mesa
 
@@ -29,8 +29,20 @@ def vista_general(agent):
         portrayal["h"] = 1
 
     elif isinstance(agent, Coche):
-        portrayal["Layer"] = 2
-        portrayal["Color"] = "Blue"
+        if agent.chocado:
+            portrayal["Layer"] = 2
+            portrayal["Color"] = "Red"
+            portrayal["w"] = 0.5
+            portrayal["h"] = 0.5
+        else:
+            portrayal["Layer"] = 2
+            portrayal["Color"] = "Blue"
+            portrayal["w"] = 0.5
+            portrayal["h"] = 0.5
+
+    elif isinstance(agent, Ambulancia):
+        portrayal["Layer"] = 3
+        portrayal["Color"] = "White"
         portrayal["w"] = 0.5
         portrayal["h"] = 0.5
 
@@ -59,11 +71,17 @@ def vista_general(agent):
         portrayal["w"] = 1
         portrayal["h"] = 1
 
-    # elif isinstance(agent, peaton):
-    #     portrayal["Color"] = "Green"
-    #     portrayal["Layer"] = 2
-    #     portrayal["Shape"] = "circle"
-    #     portrayal["r"] = 0.3
+    elif isinstance(agent, Hospital):
+        portrayal["Layer"] = 1
+        portrayal["Color"] = "White"
+        portrayal["w"] = 1
+        portrayal["h"] = 1
+
+    elif isinstance(agent, Peaton):
+        portrayal["Color"] = "Green"
+        portrayal["Layer"] = 2
+        portrayal["Shape"] = "circle"
+        portrayal["r"] = 0.3
 
     return portrayal
 
@@ -72,7 +90,7 @@ canvas_element = mesa.visualization.CanvasGrid(
     vista_general, 31, 32, 690, 690
 )
 
-model_kwargs = {"num_agents": 12, "width": 31, "height": 32}
+model_kwargs = {"num_agents": 50, "num_peatones": 25, "width": 31, "height": 32}
 
 server = mesa.visualization.ModularServer(
     Ciudad,
